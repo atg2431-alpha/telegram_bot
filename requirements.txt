@@ -2,3 +2,5 @@ python-dotenv
 aiogram
 langchain
 langchain_groq
+chromadb
+datetime

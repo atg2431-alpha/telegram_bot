@@ -11,6 +11,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message
 
 from models import model_llama
+from chat_memory import store_message, retrieve_messages, clear_memory
 
 load_dotenv()
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -42,23 +43,28 @@ async def echo_handler(message: Message) -> None:
 
     By default, message handler will handle all message types (like a text, photo, sticker etc.)
     """
-    chat_id = message.chat.id
+    chat_id = str(message.chat.id)
 
     if message.text == "/clear":
-        chat_memory.pop(chat_id, None)
+        # chat_memory.pop(chat_id, None)
+        clear_memory(chat_id)
         await message.answer("Memory cleared!")
     else:
-        if chat_id not in chat_memory:
-            chat_memory[chat_id] = []
-        chat_memory[chat_id].append(message.text)
+        # if chat_id not in chat_memory:
+        #     chat_memory[chat_id] = []
+        # chat_memory[chat_id].append(message.text)
+        store_message(chat_id, message.text)
 
         try:
-            query = message.text
+            previous_message = retrieve_messages(chat_id, n = 3)
+            context = "\n".join(previous_message)
+            query = f"Context: \n {context}\n\nUser: {message.text}"
             response = model_llama.invoke(query)
             await message.answer(response.content)
-        except:
-            await message.answer("Nice try!")
+        except Exception as e:
+            await message.answer(f"Error: {str(e)}")
 
+        stored_messages = retrieve_messages(chat_id)
         await message.answer(f"Stored messages for {chat_id}: {chat_memory[chat_id]}")
 
 async def main() -> None:
