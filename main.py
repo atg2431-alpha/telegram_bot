@@ -9,9 +9,9 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import Message
-from aiogram.filters import Command
 
-from aiogram import Router
+from models import model_llama
+
 load_dotenv()
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
@@ -53,11 +53,13 @@ async def echo_handler(message: Message) -> None:
         chat_memory[chat_id].append(message.text)
 
         try:
-            await message.send_copy(chat_id=chat_id)
+            query = message.text
+            response = model_llama.invoke(query)
+            await message.answer(response.content)
         except:
             await message.answer("Nice try!")
 
-        await message.answer(f"Stored messages: {chat_memory[chat_id]}")
+        await message.answer(f"Stored messages for {chat_id}: {chat_memory[chat_id]}")
 
 async def main() -> None:
     bot = Bot(token=TELEGRAM_BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
