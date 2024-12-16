@@ -37,8 +37,8 @@ Follow these steps to set up the project locally:
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/your-username/your-repo.git
-    cd your-repo
+    git clone https://github.com/atg2431-alpha/telegram_bot.git
+    cd atg2431-alpha/telegram_bot
     ```
 
 2. **Create a virtual environment**:
